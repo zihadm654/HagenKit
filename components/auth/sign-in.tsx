@@ -44,7 +44,7 @@ export default function SignInAuth() {
 
   // Prevent open redirects - only allow same-origin paths
   const callbackURL =
-    rawCallbackUrl && rawCallbackUrl.startsWith("/") && !rawCallbackUrl.startsWith("//")
+   rawCallbackUrl?.startsWith("/") && !rawCallbackUrl.startsWith("//")
       ? rawCallbackUrl
       : "/dashboard";
 
@@ -94,7 +94,7 @@ export default function SignInAuth() {
           </div>
         </div>
         <div className="lg:p-8">
-          <div className="mx-auto flex w-full flex-col justify-center space-y-6 sm:w-[350px]">
+          <div className="mx-auto flex w-full flex-col justify-center space-y-6 sm:w-87.5">
             <div className="flex flex-col space-y-2 text-center">
               <h1 className="text-2xl font-semibold tracking-tight">
                 Sign in to your account

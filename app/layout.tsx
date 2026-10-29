@@ -5,8 +5,9 @@ import "./globals.css";
 import { ThemeProvider } from "@/components/ui/theme-provider";
 import { constructMetadata } from "@/lib/constructMetadata";
 import { NuqsAdapter } from "nuqs/adapters/next/app";
+import type { Metadata } from "next";
 
-export const metadata = constructMetadata();
+export const metadata:Metadata = constructMetadata();
 
 export default function RootLayout({
   children,

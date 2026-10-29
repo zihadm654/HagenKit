@@ -4,12 +4,11 @@ import Link from "next/link";
 import MaxWidthWrapper from "@/components/blog/max-width-wrapper";
 import Author from "@/components/blog/author";
 import { MDX } from "@/components/blog/mdx";
-import { getBlurDataURL } from "@/lib/blog/images";
-import { Metadata } from "next";
+import { formatDateCached, getCachedBlurDataURL } from "@/lib/cached";
+import type { Metadata } from "next";
 import { constructMetadata } from "@/lib/constructMetadata";
 import BlurImage from "@/lib/blog/blur-image";
 import { BLOG_CATEGORIES } from "@/lib/blog/content";
-import { formatDate } from "@/lib/utils";
 import {
   generateBlogPostStructuredData,
   generateBreadcrumbStructuredData,
@@ -57,23 +56,33 @@ export default async function BlogArticle({
 
   const imageSources = Array.isArray(data.images) ? data.images : [];
 
-  const [thumbnailBlurhash, images] = await Promise.all([
-    getBlurDataURL(data.image),
+  const [thumbnailBlurhash, images, publishedAt] = await Promise.all([
+    getCachedBlurDataURL(data.image),
     Promise.all(
       imageSources.map(async (src: string) => ({
         src,
-        blurDataURL: await getBlurDataURL(src),
+        blurDataURL: await getCachedBlurDataURL(src),
       }))
     ),
+    formatDateCached(data.publishedAt),
   ]);
 
   const category = BLOG_CATEGORIES.find(
     (category) => category.slug === data.categories[0]
   );
 
-  const relatedArticles = (data.related || [])
+  const relatedArticles = (
+    data.related || []
+  )
     .map((slug) => allBlogPosts.find((post) => post.slug === slug))
     .filter((post): post is NonNullable<typeof post> => Boolean(post));
+
+  const relatedArticlesWithDates = await Promise.all(
+    relatedArticles.map(async (post) => ({
+      ...post,
+      formattedPublishedAt: await formatDateCached(post.publishedAt),
+    }))
+  );
 
   // Generate structured data
   const blogPostStructuredData = generateBlogPostStructuredData(data);
@@ -93,7 +102,7 @@ export default async function BlogArticle({
       <StructuredData data={blogPostStructuredData} />
       <StructuredData data={breadcrumbStructuredData} />
       <MaxWidthWrapper className="pt-28">
-        <div className="flex max-w-screen-md flex-col space-y-4">
+        <div className="flex max-w-3xl flex-col space-y-4">
           {category && (
             <Link
               href={`/blog/category/${category.slug}`}
@@ -102,13 +111,13 @@ export default async function BlogArticle({
               ← {category.title}
             </Link>
           )}
-          <h1 className="font-display text-3xl font-extrabold text-gray-700 [text-wrap:balance] sm:text-4xl sm:leading-snug">
+          <h1 className="font-display text-3xl font-extrabold text-gray-700 text-balance sm:text-4xl sm:leading-snug">
             {data.title}
           </h1>
           <p className="text-xl text-gray-500">{data.summary}</p>
           <div className="flex items-center gap-2 text-sm text-gray-500">
             <time dateTime={data.publishedAt}>
-              {formatDate(data.publishedAt)}
+              {publishedAt}
             </time>
             {data.readingTime && (
               <>
@@ -125,7 +134,7 @@ export default async function BlogArticle({
         <MaxWidthWrapper className="grid grid-cols-4 gap-5 px-0 pt-10 lg:gap-10">
           <div className="relative col-span-4 flex flex-col space-y-8 bg-white sm:rounded-t-xl sm:border sm:border-gray-200 md:col-span-3">
             <BlurImage
-              className="aspect-[1200/630] rounded-t-xl object-cover"
+              className="aspect-1200/630 rounded-t-xl object-cover"
               src={data.image}
               blurDataURL={thumbnailBlurhash}
               width={1200}
@@ -151,7 +160,7 @@ export default async function BlogArticle({
               <div className="flex flex-col space-y-4 py-5">
                 <p className="text-sm text-gray-500">Read more</p>
                 <ul className="flex flex-col space-y-4">
-                  {relatedArticles.map((post) => (
+                  {relatedArticlesWithDates.map((post) => (
                     <li key={post.slug}>
                       <Link
                         href={`/blog/${post.slug}`}
@@ -164,7 +173,7 @@ export default async function BlogArticle({
                           {post.summary}
                         </p>
                         <p className="text-xs text-gray-400 underline-offset-2 group-hover:underline">
-                          {formatDate(post.publishedAt)}
+                          {post.formattedPublishedAt}
                         </p>
                       </Link>
                     </li>

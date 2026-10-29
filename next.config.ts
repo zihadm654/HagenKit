@@ -2,6 +2,9 @@ import type { NextConfig } from "next";
 import { withContentCollections } from "@content-collections/next";
 
 const nextConfig: NextConfig = {
+  cacheComponents: true,
+  partialPrefetching:true,
+  reactCompiler: true,
   images: {
     remotePatterns: [
       {

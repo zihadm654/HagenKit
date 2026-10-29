@@ -4,7 +4,7 @@ import Link from "next/link";
 
 import { formatDate } from "@/lib/utils";
 
-import { authors } from "./author";
+import { authors } from "./authors";
 
 interface BlogPost {
   title: string;

@@ -1,6 +1,6 @@
 import SearchButton from "@/components/blog/search-button";
 import MaxWidthWrapper from "@/components/blog/max-width-wrapper";
-import { HelpPost, allHelpPosts } from "content-collections";
+import {type HelpPost, allHelpPosts } from "content-collections";
 import { ChevronRight } from "lucide-react";
 import { notFound } from "next/navigation";
 import { HELP_CATEGORIES } from "@/lib/blog/content";
@@ -10,8 +10,8 @@ import { MDX } from "@/components/blog/mdx";
 import TableOfContents from "@/components/blog/table-of-contents";
 import Feedback from "@/components/blog/feedback";
 import HelpArticleLink from "@/components/blog/help-article-link";
-import { getBlurDataURL } from "@/lib/blog/images";
-import { Metadata } from "next";
+import { getCachedBlurDataURL } from "@/lib/cached";
+import type { Metadata } from "next";
 import { constructMetadata } from "@/lib/constructMetadata";
 import {
   generateHelpArticleStructuredData,
@@ -71,14 +71,12 @@ export default async function HelpArticle({
   const images = await Promise.all(
     imageSources.map(async (src: string) => ({
       src,
-      blurDataURL: await getBlurDataURL(src),
+      blurDataURL: await getCachedBlurDataURL(src),
     }))
   );
 
   const relatedArticles =
-    ((data.related &&
-      data.related
-        .map((slug) => allHelpPosts.find((post) => post.slug === slug))
+    ((data.related?.map((slug) => allHelpPosts.find((post) => post.slug === slug))
         .filter(Boolean)) as HelpPost[]) || [];
 
   // Generate structured data
@@ -93,12 +91,12 @@ export default async function HelpArticle({
     <>
       <StructuredData data={helpArticleStructuredData} />
       <StructuredData data={breadcrumbStructuredData} />
-      <MaxWidthWrapper className="flex max-w-screen-lg flex-col py-10 mt-28">
+      <MaxWidthWrapper className="flex max-w-5xl flex-col py-10 mt-28">
         <SearchButton />
       </MaxWidthWrapper>
 
       <div className=" bg-white/50 shadow-[inset_10px_-50px_94px_0_rgb(199,199,199,0.2)] backdrop-blur-lg">
-        <MaxWidthWrapper className="grid max-w-screen-lg grid-cols-4 gap-10 py-10">
+        <MaxWidthWrapper className="grid max-w-5xl grid-cols-4 gap-10 py-10">
           <div className="col-span-4 flex flex-col space-y-8 sm:col-span-3 sm:pr-10">
             <div className="flex items-center space-x-2">
               <Link
@@ -124,7 +122,7 @@ export default async function HelpArticle({
             </div>
             <div className="flex flex-col space-y-4">
               <Link href={`/help/article/${data.slug}`}>
-                <h1 className="font-display text-3xl font-bold !leading-snug sm:text-4xl">
+                <h1 className="font-display text-3xl font-bold leading-snug! sm:text-4xl">
                   {data.title}
                 </h1>
               </Link>

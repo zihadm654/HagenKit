@@ -6,7 +6,7 @@ import { MDX } from "@/components/blog/mdx"
 import { Metadata } from "next"
 import { constructMetadata } from "@/lib/constructMetadata"
 import BlurImage from "@/lib/blog/blur-image"
-import { formatDate } from "@/lib/utils"
+import { formatDateCached } from "@/lib/cached"
 import { Twitter, Linkedin, Github, Globe } from "lucide-react"
 
 export async function generateStaticParams() {
@@ -58,6 +58,23 @@ export default async function AuthorProfile({
   )
 
   const totalArticles = authorBlogPosts.length + authorHelpPosts.length
+
+  const [blogPostDates, helpPostDates] = await Promise.all([
+    Promise.all(
+      authorBlogPosts.map(async (post) => [
+        post.slug,
+        await formatDateCached(post.publishedAt),
+      ] as const)
+    ),
+    Promise.all(
+      authorHelpPosts.map(async (post) => [
+        post.slug,
+        await formatDateCached(post.updatedAt),
+      ] as const)
+    ),
+  ])
+  const formattedBlogPostDates = new Map(blogPostDates)
+  const formattedHelpPostDates = new Map(helpPostDates)
 
   return (
     <MaxWidthWrapper className="py-28">
@@ -175,7 +192,7 @@ export default async function AuthorProfile({
                     {post.summary}
                   </p>
                   <div className="flex items-center justify-between text-xs text-gray-500">
-                    <span>{formatDate(post.publishedAt)}</span>
+                    <span>{formattedBlogPostDates.get(post.slug)}</span>
                     {post.readingTime && <span>{post.readingTime} min read</span>}
                   </div>
                 </Link>
@@ -214,7 +231,7 @@ export default async function AuthorProfile({
                     {post.summary}
                   </p>
                   <div className="flex items-center justify-between text-xs text-gray-500">
-                    <span>Updated {formatDate(post.updatedAt)}</span>
+                    <span>Updated {formattedHelpPostDates.get(post.slug)}</span>
                     {post.readingTime && <span>{post.readingTime} min read</span>}
                   </div>
                 </Link>

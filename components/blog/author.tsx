@@ -1,26 +1,11 @@
 import Link from "next/link";
 
+import { timeAgoCached } from "@/lib/cached";
 import BlurImage from "@/lib/blog/blur-image";
-import { timeAgo } from "@/lib/utils";
 
-type Author = {
-  name: string;
-  image: string;
-};
+import { authors } from "./authors";
 
-type Authors = {
-  [key: string]: Author;
-};
-
-export const authors: Authors = {
-  codehagen: {
-    name: "Christer Hagen",
-    image:
-      "https://imagedelivery.net/r-6-yk-gGPtjfbIST9-8uA/addc4b60-4c8f-47d7-10ab-6f9048432500/public",
-  },
-};
-
-export default function Author({
+export default async function Author({
   username,
   updatedAt,
   imageOnly,
@@ -59,7 +44,7 @@ export default function Author({
           dateTime={updatedAt}
           className="text-sm font-light text-warm-white/60"
         >
-          Last updated {timeAgo(new Date(updatedAt))}
+          Last updated {await timeAgoCached(updatedAt)}
         </time>
       </div>
     </div>

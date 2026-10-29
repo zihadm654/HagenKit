@@ -1,4 +1,5 @@
 import { siteConfig } from "@/lib/config";
+import { cacheLife } from "next/cache";
 import Link from "next/link";
 
 const links = [
@@ -41,8 +42,12 @@ const links = [
     ],
   },
 ];
-
-export function FooterSection() {
+async function getCurrentYear() {
+  'use cache'
+  cacheLife('max')
+  return new Date().getFullYear()
+}
+export async function FooterSection() {
   return (
     <footer role="contentinfo" className="py-8 sm:py-20 lg:pt-32">
       <div className="mx-auto max-w-6xl space-y-16 px-6 lg:px-12">
@@ -131,7 +136,7 @@ export function FooterSection() {
         />
         <div className="flex flex-wrap justify-between gap-4">
           <span className="text-muted-foreground text-sm">
-            © {new Date().getFullYear()} {siteConfig.name}, All rights
+            © {await getCurrentYear()} {siteConfig.name}, All rights
             reserved{" "}
           </span>
         </div>

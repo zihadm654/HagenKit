@@ -1,5 +1,5 @@
 import { Resend } from "resend";
-import { render } from "@react-email/components";
+import { render } from "react-email";
 import { getEmailTemplate } from "@/emails";
 import { siteConfig } from "@/lib/config";
 import type {
@@ -84,7 +84,7 @@ Full HTML content logged above.
 In a real scenario, this would be sent via Resend.
 =================================================================
       `);
-      
+
       // If it's a magic link, try to extract and log the link specifically for easier access
       if (templateId === "magic-link" && (data as any).magicLinkUrl) {
         console.log(`

@@ -66,7 +66,7 @@ export default function ForgotPasswordAuth() {
           </div>
         </div>
         <div className="lg:p-8">
-          <div className="mx-auto flex w-full flex-col justify-center space-y-6 sm:w-[350px]">
+          <div className="mx-auto flex w-full flex-col justify-center space-y-6 sm:w-87.5">
             <div className="flex flex-col space-y-2 text-center">
               <h1 className="text-2xl font-semibold tracking-tight">
                 Reset your password
@@ -90,6 +90,7 @@ export default function ForgotPasswordAuth() {
                     <p className="text-sm text-muted-foreground mt-2">
                       Didn't receive the email? Check your spam folder or{" "}
                       <button
+                        type="button"
                         onClick={() => {
                           setSuccess(false);
                           setEmail("");
@@ -189,6 +190,7 @@ export default function ForgotPasswordAuth() {
                   <p className="text-sm text-muted-foreground mt-2">
                     Didn't receive the email? Check your spam folder or{" "}
                     <button
+                      type="button"
                       onClick={() => {
                         setSuccess(false);
                         setEmail("");

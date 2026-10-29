@@ -1,3 +1,5 @@
+import { Suspense } from "react";
+import { redirect } from "next/navigation";
 import { AppSidebar } from "@/components/app-sidebar";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { SiteHeader } from "@/components/site-header";
@@ -5,15 +7,30 @@ import { getCurrentUser } from "../actions/user";
 import { toSidebarUser } from "@/types/user";
 import { getImpersonationStatus } from "@/app/actions/admin/impersonate";
 import { ImpersonationBanner } from "@/components/impersonation-banner";
-import { redirect } from "next/navigation";
+import { AppShellSkeleton } from "@/components/app-shell-skeleton";
 
-export const dynamic = 'force-dynamic';
-
-export default async function DashboardLayout({
+export default function DashboardLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  return (
+    <SidebarProvider
+      style={
+        {
+          "--sidebar-width": "calc(var(--spacing) * 72)",
+          "--header-height": "calc(var(--spacing) * 12)",
+        } as React.CSSProperties
+      }
+    >
+      <Suspense fallback={<AppShellSkeleton />}>
+        <DashboardShell>{children}</DashboardShell>
+      </Suspense>
+    </SidebarProvider>
+  );
+}
+
+async function DashboardShell({ children }: { children: React.ReactNode }) {
   const currentUser = await getCurrentUser();
 
   // Redirect to login if user is not authenticated
@@ -35,14 +52,7 @@ export default async function DashboardLayout({
     : { isImpersonating: false };
 
   return (
-    <SidebarProvider
-      style={
-        {
-          "--sidebar-width": "calc(var(--spacing) * 72)",
-          "--header-height": "calc(var(--spacing) * 12)",
-        } as React.CSSProperties
-      }
-    >
+    <>
       <AppSidebar variant="inset" user={user} />
       <SidebarInset>
         {impersonationStatus && (
@@ -51,6 +61,6 @@ export default async function DashboardLayout({
         <SiteHeader />
         {children}
       </SidebarInset>
-    </SidebarProvider>
+    </>
   );
 }

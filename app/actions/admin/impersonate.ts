@@ -2,8 +2,8 @@
 
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
-import prisma from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
+import prisma from "@/lib/prisma";
 import type { ActionResult } from "@/types/actions";
 
 // Helper to check if user is admin
